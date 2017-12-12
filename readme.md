@@ -22,7 +22,7 @@ A GPU is required for training the Arabic detection models.
 
 Faster RCNN Resnet50 [here](http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet50_coco_2017_11_08.tar.gz)
 
-Optional
+(Optional)
 Faster RCNN Inception v2 Coco [here](http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_v2_coco_2017_11_08.tar.gz)
 
 Other models available on [GitHub](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)
@@ -54,7 +54,7 @@ cd /prog/models/model/
 tar xvzf pretrained/faster_rcnn_resnet50_coco_2017_11_08.tar.gz
 ```
 
-# Black out Ticker for France24 and Al-Jaeera Collections in AcTiV-D dataset 
+#2. Black out Ticker for France24 and Al-Jaeera Collections in AcTiV-D dataset 
 ```
 cd /prog
 python3 preprocess_activ.py --remove_ticker
@@ -70,38 +70,28 @@ python3 preprocess_activ.py --generate_data
 python3 parse_activ.py
 ```
 
-(Optional) Start Tensorboard
+#4. (Optional) Start Tensorboard
 ```
 tensorboard --logdir /prog/models/model/eval
 ```
 
-#4. Start Training
+#5. Start Training
 ```
 python3 object_detection/train.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_resnet50_coco.config --train_dir=/prog/models/model/train
 ```
-OR
-```
-python3 object_detection/train.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_inception_v2_coco.config --train_dir=/prog/models/model/train
-```
 
-(Optional) Start Evaluation
+#6. (Optional) Start Evaluation
 ```
 python3 object_detection/eval.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_resnet50_coco.config --checkpoint_dir=/prog/models/model/train --eval_dir=/prog/models/model/eval
 ```
-OR
+
+Note: GPU may run out of memory if attempting Train and Eval in parallel on the same GPU. Send eval to CPU by including the following line at the beginning of eval.py:
 ```
-python3 object_detection/eval.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_inception_v2_coco.config --checkpoint_dir=/prog/models/model/train --eval_dir=/prog/models/model/eval
+import os
+os.environ["CUDA_VISIBLE_DEVICES"]=""
 ```
 
-#5 Export Model After Training
-```
-python3 object_detection/export_inference_graph.py \
-    --input_type image_tensor \
-    --pipeline_config_path /prog/models/model/faster_rcnn_resnet50_coco.config \
-    --trained_checkpoint_prefix /prog/models/model/train/model.ckpt-200000 \
-    --output_directory /prog/models/exported/
-```
-OR
+#7. Export Model After Training
 ```
 python3 object_detection/export_inference_graph.py \
     --input_type image_tensor \
@@ -110,46 +100,22 @@ python3 object_detection/export_inference_graph.py \
     --output_directory /prog/models/exported/
 ```
 
-#6. Test Images in Jupyter Notebook
+#8. Test Images in Jupyter Notebook
 
 In Jupyter, open /prog/object_detection_tutorial.ipynb and step through the cells
 
+#9. (Optional) Train a Faster RCNN Inception Model
 
+```
+python3 object_detection/train.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_inception_v2_coco.config --train_dir=/prog/models/model/train
 
+python3 object_detection/eval.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_inception_v2_coco.config --checkpoint_dir=/prog/models/model/train --eval_dir=/prog/models/model/eval
 
-/prog
-    parse_activ.py
-    Dockerfile.arabic_detection
-    +data
-        object-detection.pbtxt
-        eval.tfrecord
-        training.tfrecord
-
-
-    +models
-        +model
-            +eval
-            +train
-            -faster_rcnn_resnet101_coco.config
-            +faster_rcnn_resnet101_coco_2017_11_08
-            -faster_rcnn_resnet50_coco.config
-            +faster_rcnn_resnet50_coco_2017_11_08
-            -ssd_inception_v2_coco.config
-            +ssd_inception_v2_coco_2017_11_08
-
-
-
-lessons learned
-- batch size is 1 because it can't take two objects with diff shape in same batch
-- multiple bounding boxes in one image needs to have list of things
-- what about examples with no bounding boxes?
-- hanging memory issue
-- change classes to 1 in config
-- data aug options
-- In eval.py:
-
-import os
-os.environ["CUDA_VISIBLE_DEVICES"]=""
-
+python3 object_detection/export_inference_graph.py \
+    --input_type image_tensor \
+    --pipeline_config_path /prog/models/model/faster_rcnn_resnet50_coco.config \
+    --trained_checkpoint_prefix /prog/models/model/train/model.ckpt-200000 \
+    --output_directory /prog/models/exported/
+```
 
 
