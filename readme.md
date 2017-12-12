@@ -25,8 +25,8 @@ Faster RCNN Resnet50 [here](http://download.tensorflow.org/models/object_detecti
 (Optional)
 Faster RCNN Inception v2 Coco [here](http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_v2_coco_2017_11_08.tar.gz)
 
-Other models available on [GitHub](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)
-Matching config files for other models also available on [GitHub](https://github.com/tensorflow/models/tree/master/research/object_detection/samples/configs)
+Other models with matching config files available at [GitHub](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)
+and [GitHub](https://github.com/tensorflow/models/tree/master/research/object_detection/samples/configs)
 
 ## Build Docker Container for Detecting Arabic in Images 
 
