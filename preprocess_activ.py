@@ -5,7 +5,6 @@ from itertools import islice
 from csv import DictReader
 from urllib.request import urlretrieve
 from get_md5 import file_content_hash
-from base64 import b64encode
 from sys import exc_info
 from config import INPUT_HEIGHT, INPUT_WIDTH
 import cv2
@@ -82,20 +81,33 @@ def generate_training_data(activ_D_folder, activ_R_folder, filler_images_file, d
 
     print("Number of Open Images:", len(filler_images))
 
+    arabic_chips = list()
+
     # Inventory all activ-R files in training and test
     channels = ["France24", "AlJazeeraHD", "RussiyaAl-Yaum", "TunisiaNat1"]
     modes = ["training", "test"]
-    arabic_chips = list()
 
     for channel in channels:
         for mode in modes:
             path_to_chips = join(activ_R_folder, channel, mode + "Files", "images/")
+            if os.path.isdir(path_to_chips):
+                file_list = os.listdir(path_to_chips)
+                file_list = [join(path_to_chips, x) for x in file_list if x.endswith(".png")]
+                arabic_chips += file_list
+
+    # Inventory all ALIF files in training and test
+    modes = ["alif_train", "alif_test1", "alif_test2", "alif_test3"]
+
+    for mode in modes:
+        path_to_chips = join(ALIF_folder, mode)
+        if os.path.isdir(path_to_chips):
             file_list = os.listdir(path_to_chips)
-            file_list = [join(path_to_chips, x) for x in file_list if x.endswith(".png")]
+            file_list = [join(path_to_chips, x) for x in file_list if x.endswith(".jpg")]
             arabic_chips += file_list
 
     print("Number of Arabic chips:", len(arabic_chips))
 
+    # Create a folder to store generated images
     generated_folder = join(activ_D_folder,"Generated")
     if not os.path.isdir(generated_folder):
         os.mkdir(generated_folder)
@@ -104,15 +116,16 @@ def generate_training_data(activ_D_folder, activ_R_folder, filler_images_file, d
 
     seed(41)
     counter = 0
+    # Start XML file text
     xml_file_output = '''<?xml version="1.0" encoding="UTF-8"?>\n\n<Protocol4 channel="Generated">\n\n'''
 
-    # Put activR chips into openimage candidates
+    # Put activR and ALIF chips into openimage candidates
     for filler_image, arabic_chip in zip(filler_images,arabic_chips):
 
         chip = cv2.imread(arabic_chip)
         filler = cv2.imread(filler_image)
 
-        # Resize openimage candidates to INPUT_HEIGHT, INPUT_WIDTH to align with AcTiV dataset
+        # Resize openimage candidates to INPUT_HEIGHT, INPUT_WIDTH to align with AcTiV-D dataset
         resized_filler = cv2.resize(filler, (INPUT_WIDTH, INPUT_HEIGHT), interpolation=cv2.INTER_LINEAR)
         #print("resized",resized_filler.shape)
 
@@ -120,6 +133,11 @@ def generate_training_data(activ_D_folder, activ_R_folder, filler_images_file, d
         resized_filler_rows, resized_filler_cols, _ = resized_filler.shape
         column_placement_list = list(range(0,resized_filler_cols-chip_cols))
         row_placement_list = list(range(0,resized_filler_rows-chip_rows))
+
+        # Skip this iteration if image not big enough for chip
+        if len(column_placement_list) == 0 or len(row_placement_list) == 0:
+            print("Image {0} could not fit chip {1}; skipping".format(filler_image,arabic_chip))
+            continue
         chip_column_start = choice(column_placement_list)
         chip_row_start = choice(row_placement_list)
         #print(chip_row_start,chip_column_start)
@@ -135,13 +153,15 @@ def generate_training_data(activ_D_folder, activ_R_folder, filler_images_file, d
                 </frame>\n'''.format(str(counter),chip_rows,chip_cols,chip_row_start,chip_column_start)
         counter += 1
 
+    # End XML file text
     xml_file_output += "\n</Protocol4>"
     #print(xml_file_output)
     with open(join(generated_folder,"gtraining_Ge.xml"),'w') as f:
         f.write(xml_file_output)
 
 
-def main(remove_ticker, generate_data, data_generation_limit, activ_D_folder, activ_R_folder, filler_images_file):
+def main(remove_ticker, generate_data, data_generation_limit, activ_D_folder, activ_R_folder, ALIF_folder,
+         filler_images_file):
 
     # PART 1 - Put black box over ticket in aljazeera and france24 pictures per readme instructions
     if remove_ticker:
@@ -149,7 +169,7 @@ def main(remove_ticker, generate_data, data_generation_limit, activ_D_folder, ac
 
     # PART 2 - Generate new training examples by combining openimages data with AcTiV recognition chips
     if generate_data:
-        generate_training_data(activ_D_folder, activ_R_folder, filler_images_file, data_generation_limit)
+        generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_images_file, data_generation_limit)
 
 
 if __name__ == '__main__':
@@ -193,6 +213,12 @@ if __name__ == '__main__':
         help='Location of AcTiV dataset. Default = /arabic_data/AcTiV-R')
 
     parser.add_argument(
+        '--ALIF_folder',
+        type=str,
+        default="/arabic_text/ALIF",
+        help='Location of ALIF dataset. Default = /arabic_data/ALIF')
+
+    parser.add_argument(
         '--filler_images_file',
         type=str,
         default="/arabic_text/OpenImages/2017_11/train/images.csv",
@@ -206,13 +232,16 @@ if __name__ == '__main__':
            Data Generation Limit = {2} \n \
            AcTiV-D folder = {3} \n \
            AcTiV-R folder = {4} \n \
-           Filler images file = {5} \n "
+           ALIF folder = {5} \n \
+           Filler images file = {6} \n "
         .format(
             args.remove_ticker,
             args.generate_data,
             args.data_generation_limit,
             args.activ_D_folder,
             args.activ_R_folder,
+            args.ALIF_folder,
             args.filler_images_file))
-    main(args.remove_ticker, args.generate_data, args.data_generation_limit, args.activ_D_folder, args.activ_R_folder, args.filler_images_file)
+    main(args.remove_ticker, args.generate_data, args.data_generation_limit, args.activ_D_folder, args.activ_R_folder,
+         args.ALIF_folder, args.filler_images_file)
     print("Done")
