@@ -41,7 +41,7 @@ def redact_ticker(activ_D_folder):
                 arabic_image.save(join(path_to_images, image_filename))
 
 
-def generate_training_data(activ_D_folder, activ_R_folder, filler_images_file, data_generation_limit=1000):
+def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_images_file, data_generation_limit=1000):
 
     # Get filler images from openimages dataset
     fieldnames = ['ImageID', 'Subset', 'OriginalURL', 'OriginalLandingURL', 'License', 'AuthorProfileURL', 'Author', \
