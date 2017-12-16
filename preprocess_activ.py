@@ -49,6 +49,7 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
     downloaded_folder = join(activ_D_folder,"Downloaded")
     if not os.path.isdir(downloaded_folder): os.mkdir(downloaded_folder)
     filler_images = []
+    counter = 0
 
     with open(filler_images_file, 'r', encoding='latin-1') as f:
         filler_images_dict = DictReader(f, fieldnames=fieldnames)
@@ -61,8 +62,9 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
 
                 # Check if file has already been downloaded
                 if isfile(candidate_file_name) and line['OriginalMD5'] == file_content_hash(candidate_file_name):
-                    print("Verified {0}".format(line['OriginalURL']))
+                    #print("Verified {0}".format(line['OriginalURL']))
                     filler_images.append(candidate_file_name)
+                    counter += 1
 
                 # Download file and test hash
                 else:
@@ -70,14 +72,18 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
 
                     if line['OriginalMD5'] != file_content_hash(candidate_file_name):
                         os.remove(candidate_file_name)
-                        print("Warning - {0} did not match expected hash".format(line['OriginalURL']))
+                        #print("Warning - {0} did not match expected hash; skipping".format(line['OriginalURL']))
                     else:
-                        print("Downloaded {0}".format(line['OriginalURL']))
+                        #print("Downloaded {0}".format(line['OriginalURL']))
                         filler_images.append(candidate_file_name)
+                        counter += 1
 
             except:
                 print("Error - ", exc_info())
                 continue
+
+            if counter % 1000 ==0 and counter !=0:
+                print("Downloaded {0} Open Images".format(counter))
 
     print("Number of Open Images:", len(filler_images))
 
@@ -136,7 +142,7 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
 
         # If chip is too big (likely too long) for image then use as negative training example
         if len(column_placement_list) == 0 or len(row_placement_list) == 0:
-            print("Image {0} could not fit chip {1}; will use as negative training example".format(filler_image,arabic_chip))
+            #print("Image {0} could not fit chip {1}; will use as negative training example".format(filler_image,arabic_chip))
 
             # Record empty location as xml format
             xml_file_output += '''<frame source="vd00" id="{0}">
@@ -155,11 +161,13 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
                 </frame>\n'''.format(str(counter),chip_rows,chip_cols,chip_row_start,chip_column_start)
 
             # Save image for future training in Generated folder
-            print("Created", join(generated_folder,"trainingFiles","Generated_vd00_frame_" + str(counter) + ".png"))
+            #print("Created", join(generated_folder,"trainingFiles","Generated_vd00_frame_" + str(counter) + ".png"))
 
         cv2.imwrite(join(generated_folder,"trainingFiles","Generated_vd00_frame_" + str(counter) + ".png"), resized_filler)
 
         counter += 1
+        if counter % 1000 == 0:
+            print("Generated {0} training examples".format(counter))
 
     # End XML file text
     xml_file_output += "\n</Protocol4>"
