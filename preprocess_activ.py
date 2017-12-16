@@ -134,23 +134,31 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
         column_placement_list = list(range(0,resized_filler_cols-chip_cols))
         row_placement_list = list(range(0,resized_filler_rows-chip_rows))
 
-        # Skip this iteration if image not big enough for chip
+        # If chip is too big (likely too long) for image then use as negative training example
         if len(column_placement_list) == 0 or len(row_placement_list) == 0:
-            print("Image {0} could not fit chip {1}; skipping".format(filler_image,arabic_chip))
-            continue
-        chip_column_start = choice(column_placement_list)
-        chip_row_start = choice(row_placement_list)
-        #print(chip_row_start,chip_column_start)
-        resized_filler[chip_row_start:chip_row_start+chip_rows,chip_column_start:chip_column_start+chip_cols] = chip
+            print("Image {0} could not fit chip {1}; will use as negative training example".format(filler_image,arabic_chip))
 
-        # Save image for future training in Generated folder
-        print("Created", join(generated_folder,"trainingFiles","Generated_vd00_frame_" + str(counter) + ".png"))
-        cv2.imwrite(join(generated_folder,"trainingFiles","Generated_vd00_frame_" + str(counter) + ".png"), resized_filler)
+            # Record empty location as xml format
+            xml_file_output += '''<frame source="vd00" id="{0}">
+                </frame>\n'''.format(str(counter))
 
-        # Record location as xml format
-        xml_file_output += '''<frame source="vd00" id="{0}">
+        # Chip fits in Filler Image
+        else:
+            chip_column_start = choice(column_placement_list)
+            chip_row_start = choice(row_placement_list)
+            #print(chip_row_start,chip_column_start)
+            resized_filler[chip_row_start:chip_row_start+chip_rows,chip_column_start:chip_column_start+chip_cols] = chip
+
+            # Record location as xml format
+            xml_file_output += '''<frame source="vd00" id="{0}">
                 <rectangle id="1" height="{1}" width="{2}" y="{3}" x="{4}"/>
                 </frame>\n'''.format(str(counter),chip_rows,chip_cols,chip_row_start,chip_column_start)
+
+            # Save image for future training in Generated folder
+            print("Created", join(generated_folder,"trainingFiles","Generated_vd00_frame_" + str(counter) + ".png"))
+
+        cv2.imwrite(join(generated_folder,"trainingFiles","Generated_vd00_frame_" + str(counter) + ".png"), resized_filler)
+
         counter += 1
 
     # End XML file text
