@@ -28,8 +28,9 @@ Faster RCNN Inception v2 Coco [here](http://download.tensorflow.org/models/objec
 Other models with matching config files available at [GitHub](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)
 and [GitHub](https://github.com/tensorflow/models/tree/master/research/object_detection/samples/configs)
 
-## Build Docker Container for Detecting Arabic in Images 
+## Git Clone Repository and Build Docker Container for Detecting Arabic in Images 
 
+Git clone the scimitar repository to your computer, navigate to the scimitar directory and run:
 ```
 docker build -f Dockerfile.arabic_detection -t hammer.arabic_detection .
 ```
