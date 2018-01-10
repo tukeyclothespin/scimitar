@@ -68,6 +68,7 @@ python3 preprocess_activ.py --generate_data
 
 #3. Parse AcTiV Data
 ```
+cd /prog
 python3 parse_activ.py
 ```
 
@@ -78,11 +79,13 @@ tensorboard --logdir /prog/models/model/eval
 
 #5. Start Training
 ```
+cd /models/research
 python3 object_detection/train.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_resnet50_coco.config --train_dir=/prog/models/model/train
 ```
 
 #6. (Optional) Start Evaluation
 ```
+cd /models/research
 python3 object_detection/eval.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_resnet50_coco.config --checkpoint_dir=/prog/models/model/train --eval_dir=/prog/models/model/eval
 ```
 
@@ -94,6 +97,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]=""
 
 #7. Export Model After Training
 ```
+cd /models/research
 python3 object_detection/export_inference_graph.py \
     --input_type image_tensor \
     --pipeline_config_path /prog/models/model/faster_rcnn_resnet50_coco.config \
@@ -108,6 +112,7 @@ In Jupyter, open /prog/object_detection_tutorial.ipynb and step through the cell
 #9. (Optional) Train a Faster RCNN Inception Model
 
 ```
+cd /models/research
 python3 object_detection/train.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_inception_v2_coco.config --train_dir=/prog/models/model/train
 
 python3 object_detection/eval.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_inception_v2_coco.config --checkpoint_dir=/prog/models/model/train --eval_dir=/prog/models/model/eval
