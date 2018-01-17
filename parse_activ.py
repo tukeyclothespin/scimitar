@@ -1,6 +1,3 @@
-# TODO - Allow images with no bounding boxes to be included (see len(xmins)>0, line 44)
-# TODO - add argparse to pass in whether you want all the images to be the same size
-
 from lxml import etree
 import tensorflow as tf
 from object_detection.utils import dataset_util
@@ -18,7 +15,7 @@ def create_tf_example(example):
         return None
 
     # Turn images to black and white to simplify processing
-    activ_image = activ_image.convert('L')
+    # activ_image = activ_image.convert('L')
 
     # Normalized x,y coordinates
     width, height = activ_image.size
