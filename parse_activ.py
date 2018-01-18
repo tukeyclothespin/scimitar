@@ -14,8 +14,8 @@ def create_tf_example(example):
         print("Could not find {0}; skipping".format(join(example['path_to_image'], example['file_name'])))
         return None
 
-    # Turn images to black and white to simplify processing
-    # activ_image = activ_image.convert('L')
+    # Turn images to black and white to simplify processing but retain RGB array structure
+    activ_image = activ_image.convert('L').convert('RGB')
 
     # Normalized x,y coordinates
     width, height = activ_image.size

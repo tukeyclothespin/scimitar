@@ -111,7 +111,14 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
             file_list = [join(path_to_chips, x) for x in file_list if x.endswith(".jpg")]
             arabic_chips += file_list
 
-    print("Number of Arabic chips:", len(arabic_chips))
+    num_arabic_chips = len(arabic_chips)
+    print("Number of Arabic chips:", num_arabic_chips)
+
+    # create triplets of arabic_chips to place in filler images
+    step = int(num_arabic_chips/3)
+    arabic_chip_triplets = []
+    for i in range(step):
+        arabic_chip_triplets.append([arabic_chips[i],arabic_chips[i+step],arabic_chips[i+2*step]])
 
     # Create a folder to store generated images
     generated_folder = join(activ_D_folder,"Generated")
@@ -126,44 +133,52 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
     xml_file_output = '''<?xml version="1.0" encoding="UTF-8"?>\n\n<Protocol4 channel="Generated">\n\n'''
 
     # Put activR and ALIF chips into openimage candidates
-    for filler_image, arabic_chip in zip(filler_images,arabic_chips):
+    # for filler_image, arabic_chip in zip(filler_images,arabic_chips):
+    for filler_image, arabic_chips in zip(filler_images, arabic_chip_triplets):
 
-        chip = cv2.imread(arabic_chip)
         filler = cv2.imread(filler_image)
-
         # Resize openimage candidates to INPUT_HEIGHT, INPUT_WIDTH to align with AcTiV-D dataset
         resized_filler = cv2.resize(filler, (INPUT_WIDTH, INPUT_HEIGHT), interpolation=cv2.INTER_LINEAR)
-        #print("resized",resized_filler.shape)
-
-        chip_rows, chip_cols, _ = chip.shape
         resized_filler_rows, resized_filler_cols, _ = resized_filler.shape
-        column_placement_list = list(range(0,resized_filler_cols-chip_cols))
-        row_placement_list = list(range(0,resized_filler_rows-chip_rows))
 
-        # If chip is too big (likely too long) for image then use as negative training example
-        if len(column_placement_list) == 0 or len(row_placement_list) == 0:
-            #print("Image {0} could not fit chip {1}; will use as negative training example".format(filler_image,arabic_chip))
+        placed_chip = False
+        xml_file_output += '''<frame source="vd00" id="{0}">'''.format(str(counter))
 
-            # Record empty location as xml format
-            xml_file_output += '''<frame source="vd00" id="{0}">
-                </frame>\n'''.format(str(counter))
+        for arabic_chip in arabic_chips:
 
-        # Chip fits in Filler Image
-        else:
-            chip_column_start = choice(column_placement_list)
-            chip_row_start = choice(row_placement_list)
-            #print(chip_row_start,chip_column_start)
-            resized_filler[chip_row_start:chip_row_start+chip_rows,chip_column_start:chip_column_start+chip_cols] = chip
+            chip = cv2.imread(arabic_chip)
+            chip_rows, chip_cols, _ = chip.shape
+            column_placement_list = list(range(0, resized_filler_cols - chip_cols))
+            row_placement_list = list(range(0, resized_filler_rows - chip_rows))
 
-            # Record location as xml format
-            xml_file_output += '''<frame source="vd00" id="{0}">
-                <rectangle id="1" height="{1}" width="{2}" y="{3}" x="{4}"/>
-                </frame>\n'''.format(str(counter),chip_rows,chip_cols,chip_row_start,chip_column_start)
+            # If chip is too big (likely too long) for image then use as negative training example
+            if len(column_placement_list) == 0 or len(row_placement_list) == 0:
+                # print("Image {0} could not fit chip {1}; will use as negative training example".format(filler_image,arabic_chip))
+                # Record empty location as xml format
+                # xml_file_output += '''<frame source="vd00" id="{0}">
+                #    </frame>\n'''.format(str(counter))
+                continue
 
-            # Save image for future training in Generated folder
-            #print("Created", join(generated_folder,"trainingFiles","Generated_vd00_frame_" + str(counter) + ".png"))
+            # Chip fits in Filler Image
+            else:
+                chip_column_start = choice(column_placement_list)
+                chip_row_start = choice(row_placement_list)
+                # print(chip_row_start,chip_column_start)
+                resized_filler[chip_row_start:chip_row_start + chip_rows,
+                chip_column_start:chip_column_start + chip_cols] = chip
 
-        cv2.imwrite(join(generated_folder,"trainingFiles","Generated_vd00_frame_" + str(counter) + ".png"), resized_filler)
+                # Record location as xml format
+                xml_file_output += '''<rectangle id="1" height="{0}" width="{1}" y="{2}" x="{3}"/>\n'''.format(
+                    chip_rows, chip_cols, chip_row_start, chip_column_start)
+                placed_chip = True
+                # Save image for future training in Generated folder
+                # print("Created", join(generated_folder,"trainingFiles","Generated_vd00_frame_" + str(counter) + ".png"))
+
+        xml_file_output += '''</frame>\n'''
+
+        # resized_filler = cv2.cvtColor(resized_filler, cv2.COLOR_BGR2GRAY)
+        cv2.imwrite(join(generated_folder, "trainingFiles", "Generated_vd00_frame_" + str(counter) + ".png"),
+                    resized_filler)
 
         counter += 1
         if counter % 1000 == 0:
