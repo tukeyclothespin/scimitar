@@ -190,6 +190,9 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
     with open(join(generated_folder,"gtraining_Ge.xml"),'w') as f:
         f.write(xml_file_output)
 
+    # Print out final count
+    print("Generated {0} training examples".format(counter))
+
 
 def main(remove_ticker, generate_data, data_generation_limit, activ_D_folder, activ_R_folder, ALIF_folder,
          filler_images_file):

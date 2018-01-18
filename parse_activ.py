@@ -25,7 +25,7 @@ def create_tf_example(example):
     ymaxs = [y / float(height) for y in example['bbox_ymaxs']]
 
     # Skip the image if it doesn't match INPUT_WIDTH x INPUT_HEIGHT
-    if ONE_IMAGE_SIZE and height != INPUT_HEIGHT or width != INPUT_WIDTH:
+    if ONE_IMAGE_SIZE and (height != INPUT_HEIGHT or width != INPUT_WIDTH):
         #print("resizing",example['file_name'])
         #image = image.resize((INPUT_WIDTH, INPUT_HEIGHT), Image.BICUBIC)
         #width, height = image.size
