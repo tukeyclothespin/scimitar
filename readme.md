@@ -122,7 +122,7 @@ python3 object_detection/eval.py --logtostderr --pipeline_config_path=/prog/mode
 
 python3 object_detection/export_inference_graph.py \
     --input_type image_tensor \
-    --pipeline_config_path /prog/models/model/faster_rcnn_resnet50_coco.config \
+    --pipeline_config_path /prog/models/model/faster_rcnn_inception_v2_coco.config \
     --trained_checkpoint_prefix /prog/models/model/train/model.ckpt-200000 \
     --output_directory /prog/models/exported/
 ```
