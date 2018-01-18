@@ -6,7 +6,7 @@ from csv import DictReader
 from urllib.request import urlretrieve
 from get_md5 import file_content_hash
 from sys import exc_info
-from config import INPUT_HEIGHT, INPUT_WIDTH
+from config import ONE_IMAGE_SIZE, INPUT_HEIGHT, INPUT_WIDTH
 import cv2
 from random import seed, choice
 
@@ -137,8 +137,13 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
     for filler_image, arabic_chips in zip(filler_images, arabic_chip_triplets):
 
         filler = cv2.imread(filler_image)
-        # Resize openimage candidates to INPUT_HEIGHT, INPUT_WIDTH to align with AcTiV-D dataset
-        resized_filler = cv2.resize(filler, (INPUT_WIDTH, INPUT_HEIGHT), interpolation=cv2.INTER_LINEAR)
+
+        if ONE_IMAGE_SIZE:
+            # Resize openimage candidates to INPUT_HEIGHT, INPUT_WIDTH to align with AcTiV-D dataset
+            resized_filler = cv2.resize(filler, (INPUT_WIDTH, INPUT_HEIGHT), interpolation=cv2.INTER_LINEAR)
+        else:
+            resized_filler = filler
+
         resized_filler_rows, resized_filler_cols, _ = resized_filler.shape
 
         placed_chip = False
