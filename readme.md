@@ -89,7 +89,7 @@ cd /models/research
 python3 object_detection/eval.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_resnet50_coco.config --checkpoint_dir=/prog/models/model/train --eval_dir=/prog/models/model/eval
 ```
 
-Note: GPU may run out of memory if attempting Train and Eval in parallel on the same GPU. Send eval to CPU by including the following line at the beginning of eval.py:
+Note: GPU may run out of memory if attempting Train and Eval in parallel on the same GPU. Send eval to CPU by including the following line at the beginning of /models/research/object_detection/eval.py:
 ```
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]=""
