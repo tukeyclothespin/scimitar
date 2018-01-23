@@ -118,6 +118,8 @@ tar xvzf pretrained/faster_rcnn_inception_v2_coco_2017_11_08.tar.gz
 cd /models/research
 python3 object_detection/train.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_inception_v2_coco.config --train_dir=/prog/models/model/train
 
+tensorboard --logdir /prog/models/model/eval
+
 python3 object_detection/eval.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_inception_v2_coco.config --checkpoint_dir=/prog/models/model/train --eval_dir=/prog/models/model/eval
 
 python3 object_detection/export_inference_graph.py \
