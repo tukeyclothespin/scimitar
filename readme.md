@@ -72,15 +72,15 @@ cd /prog
 python3 parse_activ.py
 ```
 
-#4. (Optional) Start Tensorboard
-```
-tensorboard --logdir /prog/models/model/eval
-```
-
-#5. Start Training
+#4. Start Training
 ```
 cd /models/research
 python3 object_detection/train.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_resnet50_coco.config --train_dir=/prog/models/model/train
+```
+
+#5. (Optional) Start Tensorboard
+```
+tensorboard --logdir /prog/models/model/eval
 ```
 
 #6. (Optional) Start Evaluation
