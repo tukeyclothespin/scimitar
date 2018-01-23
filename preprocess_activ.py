@@ -6,7 +6,7 @@ from csv import DictReader
 from urllib.request import urlretrieve
 from get_md5 import file_content_hash
 from sys import exc_info
-from config import ONE_IMAGE_SIZE, INPUT_HEIGHT, INPUT_WIDTH
+from global_config import ONE_IMAGE_SIZE, INPUT_HEIGHT, INPUT_WIDTH
 import cv2
 from random import seed, choice
 

@@ -4,3 +4,5 @@ ONE_IMAGE_SIZE = True
 # Most of the AcTiV labeled samples are 720x576. Note that AlJazeeraHD is not
 INPUT_WIDTH = 720
 INPUT_HEIGHT = 576
+# Color might not a meaningful feature for Arabic detection
+USE_GRAYSCALE = True

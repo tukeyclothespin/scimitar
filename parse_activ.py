@@ -4,7 +4,7 @@ from object_detection.utils import dataset_util
 from os.path import join, isfile
 from PIL import Image
 import io
-from config import INPUT_HEIGHT, INPUT_WIDTH, ONE_IMAGE_SIZE
+from global_config import INPUT_HEIGHT, INPUT_WIDTH, ONE_IMAGE_SIZE, USE_GRAYSCALE
 
 def create_tf_example(example):
     # Some images referenced in the xml aren't in the dataset
@@ -14,8 +14,8 @@ def create_tf_example(example):
         print("Could not find {0}; skipping".format(join(example['path_to_image'], example['file_name'])))
         return None
 
-    # Turn images to black and white to simplify processing but retain RGB array structure
-    activ_image = activ_image.convert('L').convert('RGB')
+    if USE_GRAYSCALE:
+        activ_image = activ_image.convert('L').convert('RGB')
 
     # Normalized x,y coordinates
     width, height = activ_image.size
@@ -69,13 +69,14 @@ def create_tf_example(example):
 
 
 def main(_):
-    # def main():
 
-    # output_files = ["training.tfrecord","eval.tfrecord"]
+    # Use some of the test files as training examples and reserve one test batch for evaluation
     modes = ["training", "test"]
-    channels = ["France24", "AljazeeraHD", "RussiyaAl-Yaum", "TunisiaNat1", "Generated"]
-    training_files = ["gtraining_Fr.xml", "gtraining_Aj.xml", "gtraining_Rt.xml", "gtraining_Tn.xml", "gtraining_Ge.xml"]
-    testing_files = ["gtest_Fr.xml", "gtest_Aj.xml", "gtest_Rt.xml", "gtest_Tn.xml"]
+    channels = ["France24", "AljazeeraHD", "RussiyaAl-Yaum", "TunisiaNat1", "AljazeeraHD", "RussiyaAl-Yaum",
+                "TunisiaNat1", "Generated"]
+    training_files = ["gtraining_Fr.xml", "gtraining_Aj.xml", "gtraining_Rt.xml", "gtraining_Tn.xml",
+                      "gtest_Aj.xml", "gtest_Rt.xml", "gtest_Tn.xml", "gtraining_Ge.xml"]
+    testing_files = ["gtest_Fr.xml"]
 
     for mode in modes:
 
