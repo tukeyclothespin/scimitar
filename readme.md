@@ -89,7 +89,7 @@ cd /models/research
 python3 object_detection/eval.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_resnet50_coco.config --checkpoint_dir=/prog/models/model/train --eval_dir=/prog/models/model/eval
 ```
 
-Note: GPU may run out of memory if attempting Train and Eval in parallel on the same GPU. Send eval to CPU by including the following line at the beginning of eval.py:
+Note: GPU may run out of memory if attempting Train and Eval in parallel on the same GPU. Send eval to CPU by including the following line at the beginning of /models/research/object_detection/eval.py:
 ```
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]=""
@@ -112,6 +112,9 @@ In Jupyter, open /prog/object_detection_tutorial.ipynb and step through the cell
 #9. (Optional) Train a Faster RCNN Inception Model
 
 ```
+cd /prog/models/model/
+tar xvzf pretrained/faster_rcnn_inception_v2_coco_2017_11_08.tar.gz
+
 cd /models/research
 python3 object_detection/train.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_inception_v2_coco.config --train_dir=/prog/models/model/train
 
@@ -119,7 +122,7 @@ python3 object_detection/eval.py --logtostderr --pipeline_config_path=/prog/mode
 
 python3 object_detection/export_inference_graph.py \
     --input_type image_tensor \
-    --pipeline_config_path /prog/models/model/faster_rcnn_resnet50_coco.config \
+    --pipeline_config_path /prog/models/model/faster_rcnn_inception_v2_coco.config \
     --trained_checkpoint_prefix /prog/models/model/train/model.ckpt-200000 \
     --output_directory /prog/models/exported/
 ```
