@@ -26,10 +26,7 @@ def create_tf_example(example):
 
     # Skip the image if it doesn't match INPUT_WIDTH x INPUT_HEIGHT
     if ONE_IMAGE_SIZE and (height != INPUT_HEIGHT or width != INPUT_WIDTH):
-        #print("resizing",example['file_name'])
-        #image = image.resize((INPUT_WIDTH, INPUT_HEIGHT), Image.BICUBIC)
-        #width, height = image.size
-        print("Input image does not match expected size {0}x{1}; skipping".format(INPUT_WIDTH,INPUT_HEIGHT))
+        #print("Input image does not match expected size {0}x{1}; skipping".format(INPUT_WIDTH,INPUT_HEIGHT))
         return None
 
     imgByteArr = io.BytesIO()
