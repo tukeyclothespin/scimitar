@@ -80,7 +80,7 @@ python3 object_detection/train.py --logtostderr --pipeline_config_path=/prog/mod
 
 #5. (Optional) Start Tensorboard
 ```
-tensorboard --logdir /prog/models/model/eval
+tensorboard --logdir /prog/models/model/
 ```
 
 #6. (Optional) Start Evaluation
@@ -119,7 +119,7 @@ cd /models/research
 python3 object_detection/train.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_inception_v2_coco.config --train_dir=/prog/models/model/train
 
 (Optional)
-tensorboard --logdir /prog/models/model/eval
+tensorboard --logdir /prog/models/model/
 
 (Optional)
 cd /models/research
