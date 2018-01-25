@@ -6,7 +6,8 @@ from PIL import Image
 import io
 from global_config import INPUT_HEIGHT, INPUT_WIDTH, ONE_IMAGE_SIZE, USE_GRAYSCALE
 
-def create_tf_example(example):
+
+def create_tf_example(example, mode):
     # Some images referenced in the xml aren't in the dataset
     try:
         activ_image = Image.open(join(example['path_to_image'], example['file_name']), mode='r')
@@ -25,7 +26,7 @@ def create_tf_example(example):
     ymaxs = [y / float(height) for y in example['bbox_ymaxs']]
 
     # Skip the image if it doesn't match INPUT_WIDTH x INPUT_HEIGHT
-    if ONE_IMAGE_SIZE and (height != INPUT_HEIGHT or width != INPUT_WIDTH):
+    if mode != "test" and ONE_IMAGE_SIZE and (height != INPUT_HEIGHT or width != INPUT_WIDTH):
         #print("Input image does not match expected size {0}x{1}; skipping".format(INPUT_WIDTH,INPUT_HEIGHT))
         return None
 
@@ -69,11 +70,11 @@ def main(_):
 
     # Use some of the test files as training examples and reserve one test batch for evaluation
     modes = ["training", "test"]
-    channels = ["France24", "AljazeeraHD", "RussiyaAl-Yaum", "TunisiaNat1", "AljazeeraHD", "RussiyaAl-Yaum",
+    channels = ["AljazeeraHD", "France24", "RussiyaAl-Yaum", "TunisiaNat1", "France24", "RussiyaAl-Yaum",
                 "TunisiaNat1", "Generated"]
-    training_files = ["gtraining_Fr.xml", "gtraining_Aj.xml", "gtraining_Rt.xml", "gtraining_Tn.xml",
-                      "gtest_Aj.xml", "gtest_Rt.xml", "gtest_Tn.xml", "gtraining_Ge.xml"]
-    testing_files = ["gtest_Fr.xml"]
+    training_files = ["gtraining_Aj.xml", "gtraining_Fr.xml", "gtraining_Rt.xml", "gtraining_Tn.xml",
+                      "gtest_Fr.xml", "gtest_Rt.xml", "gtest_Tn.xml", "gtraining_Ge.xml"]
+    testing_files = ["gtest_Aj.xml"]
 
     for mode in modes:
 
@@ -136,7 +137,7 @@ def main(_):
         counter = 0
         len_examples = len(examples)
         for example in examples:
-            tf_example = create_tf_example(example)
+            tf_example = create_tf_example(example, mode)
             if tf_example is not None:
                 writer.write(tf_example.SerializeToString())
                 counter += 1

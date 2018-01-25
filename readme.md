@@ -89,7 +89,7 @@ cd /models/research
 python3 object_detection/eval.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_resnet50_coco.config --checkpoint_dir=/prog/models/model/train --eval_dir=/prog/models/model/eval
 ```
 
-Note: GPU may run out of memory if attempting Train and Eval in parallel on the same GPU. Send eval to CPU by including the following line at the beginning of /models/research/object_detection/eval.py:
+Note: GPU may run out of memory if attempting Train and Eval in parallel on the same GPU. Send eval to CPU by including the following line at the beginning of /models/research/object_detection/eval.py. This is already done in the Dockerfile.
 ```
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]=""
@@ -118,8 +118,10 @@ tar xvzf pretrained/faster_rcnn_inception_v2_coco_2017_11_08.tar.gz
 cd /models/research
 python3 object_detection/train.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_inception_v2_coco.config --train_dir=/prog/models/model/train
 
+(Optional)
 tensorboard --logdir /prog/models/model/eval
 
+(Optional)
 cd /models/research
 python3 object_detection/eval.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_inception_v2_coco.config --checkpoint_dir=/prog/models/model/train --eval_dir=/prog/models/model/eval
 
