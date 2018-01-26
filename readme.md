@@ -115,6 +115,12 @@ In Jupyter, open /prog/object_detection_tutorial.ipynb and step through the cell
 cd /prog/models/model/
 tar xvzf pretrained/faster_rcnn_inception_v2_coco_2017_11_08.tar.gz
 
+cd /prog
+python3 preprocess_activ.py --remove_ticker
+
+cd /prog
+python3 parse_activ.py
+
 cd /models/research
 python3 object_detection/train.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_inception_v2_coco.config --train_dir=/prog/models/model/train
 
