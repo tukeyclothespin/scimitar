@@ -9,7 +9,7 @@ from sys import exc_info
 from global_config import ONE_IMAGE_SIZE, INPUT_HEIGHT, INPUT_WIDTH
 import cv2
 from random import seed, choice
-
+from collections import defaultdict
 
 def redact_ticker(activ_D_folder):
 
@@ -146,8 +146,8 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
 
         resized_filler_rows, resized_filler_cols, _ = resized_filler.shape
 
-        placed_chip = False
         xml_file_output += '''<frame source="vd00" id="{0}">'''.format(str(counter))
+        pixels_used = defaultdict(bool)
 
         for arabic_chip in arabic_chips:
 
@@ -158,30 +158,37 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
 
             # If chip is too big (likely too long) for image then use as negative training example
             if len(column_placement_list) == 0 or len(row_placement_list) == 0:
-                # print("Image {0} could not fit chip {1}; will use as negative training example".format(filler_image,arabic_chip))
-                # Record empty location as xml format
-                # xml_file_output += '''<frame source="vd00" id="{0}">
-                #    </frame>\n'''.format(str(counter))
                 continue
 
             # Chip fits in Filler Image
             else:
-                chip_column_start = choice(column_placement_list)
-                chip_row_start = choice(row_placement_list)
-                # print(chip_row_start,chip_column_start)
+                placed_chip = False
+                attempts = 0
+                # Look for location to place chip that doesn't overlap with previous chips
+                while not placed_chip and attempts < 50:
+                    chip_column_start = choice(column_placement_list)
+                    chip_row_start = choice(row_placement_list)
+
+                    use_columns = range(chip_column_start, chip_column_start + chip_cols)
+                    use_rows = range(chip_row_start, chip_row_start + chip_rows)
+
+                    placed_chip = check_pixels_used(pixels_used,use_columns,use_rows)
+                    attempts += 1
+
+                # Continue to next chip if this chip was not placed after max attempts
+                if not placed_chip:
+                    continue
+
+                # Insert chip into filler background image
                 resized_filler[chip_row_start:chip_row_start + chip_rows,
-                chip_column_start:chip_column_start + chip_cols] = chip
+                               chip_column_start:chip_column_start + chip_cols] = chip
 
                 # Record location as xml format
                 xml_file_output += '''<rectangle id="1" height="{0}" width="{1}" y="{2}" x="{3}"/>\n'''.format(
                     chip_rows, chip_cols, chip_row_start, chip_column_start)
-                placed_chip = True
-                # Save image for future training in Generated folder
-                # print("Created", join(generated_folder,"trainingFiles","Generated_vd00_frame_" + str(counter) + ".png"))
 
         xml_file_output += '''</frame>\n'''
 
-        # resized_filler = cv2.cvtColor(resized_filler, cv2.COLOR_BGR2GRAY)
         cv2.imwrite(join(generated_folder, "trainingFiles", "Generated_vd00_frame_" + str(counter) + ".png"),
                     resized_filler)
 
@@ -197,6 +204,21 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
 
     # Print out final count
     print("Generated {0} training examples".format(counter))
+
+
+def check_pixels_used(pixels_used, use_columns, use_rows):
+
+    # Check if any pixel in proposed chip placement has been used. If so, return False
+    for col in use_columns:
+        for row in use_rows:
+            if pixels_used[str(col)+"_"+str(row)]:
+                return False
+    # If no conflicts exist, mark pixels as used and return True
+    for col in use_columns:
+        for row in use_rows:
+            pixels_used[str(col)+"_"+str(row)] = True
+
+    return True
 
 
 def main(remove_ticker, generate_data, data_generation_limit, activ_D_folder, activ_R_folder, ALIF_folder,

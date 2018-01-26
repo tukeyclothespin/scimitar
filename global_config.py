@@ -5,4 +5,4 @@ ONE_IMAGE_SIZE = True
 INPUT_WIDTH = 720
 INPUT_HEIGHT = 576
 # Color might not a meaningful feature for Arabic detection
-USE_GRAYSCALE = True
+USE_GRAYSCALE = False
