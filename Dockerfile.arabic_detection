@@ -4,7 +4,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         cmake \
         python3-tk \
-        tesseract-ocr
+        #tesseract-ocr
+
+# Install tesseract 4.00 LSTM version
+RUN apt-get update && apt-get install -y software-properties-common && add-apt-repository -y ppa:alex-p/tesseract-ocr
+RUN apt-get update && apt-get install -y tesseract-ocr
 
 # Dependencies
 RUN apt-get install -y protobuf-compiler python-pil python-lxml && \
@@ -37,6 +41,5 @@ ENV PYTHONPATH /models:/models/research:/models/research/slim:/models/research/o
 #EXPOSE 8888
 COPY . /prog
 WORKDIR /prog
-#CMD ["ipython", "notebook", "--no-browser", "--ip='*'","--allow-root"]
 ENTRYPOINT ["/usr/local/bin/jupyter","notebook"]
 CMD ["--allow-root","--port=8888","--ip=0.0.0.0","--no-browser"]
