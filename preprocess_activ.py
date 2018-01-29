@@ -179,9 +179,14 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
                 if not placed_chip:
                     continue
 
-                # Insert chip into filler background image
+                # Blend chip into filler background image
+                background = resized_filler[chip_row_start:chip_row_start + chip_rows,
+                                            chip_column_start:chip_column_start + chip_cols]
+                blended = cv2.addWeighted(background, 0.5, chip, 0.5, 0)
                 resized_filler[chip_row_start:chip_row_start + chip_rows,
-                               chip_column_start:chip_column_start + chip_cols] = chip
+                               chip_column_start:chip_column_start + chip_cols] = blended
+                #resized_filler[chip_row_start:chip_row_start + chip_rows,
+                #               chip_column_start:chip_column_start + chip_cols] = chip
 
                 # Record location as xml format
                 xml_file_output += '''<rectangle id="1" height="{0}" width="{1}" y="{2}" x="{3}"/>\n'''.format(
