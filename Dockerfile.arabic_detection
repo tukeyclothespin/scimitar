@@ -3,7 +3,7 @@ FROM tensorflow/tensorflow:nightly-gpu-py3
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         cmake \
-        python3-tk \
+        python3-tk #\
         #tesseract-ocr
 
 # Install tesseract 4.00 LSTM version
