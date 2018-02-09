@@ -11,6 +11,7 @@ import cv2
 from random import seed, choice
 from collections import defaultdict
 
+
 def redact_ticker(activ_D_folder):
 
     # Ticker removal only pertains to AljazeeraHD and France24 per AcTiV readme
@@ -18,7 +19,7 @@ def redact_ticker(activ_D_folder):
     modes = ["training", "test"]
 
     for channel in channels:
-        print("Blacking out ticker from {0}".format(channel))
+        print("Blocking out ticker from {0}".format(channel))
         for mode in modes:
             path_to_images = join(activ_D_folder, channel, mode + "Files")
             file_list = os.listdir(path_to_images)
@@ -27,16 +28,20 @@ def redact_ticker(activ_D_folder):
             for image_filename in file_list:
                 arabic_image = Image.open(join(path_to_images, image_filename))
                 width, height = arabic_image.size
+
+                # Block out entire ticker with a random color
+                color = choice(range(0,255))
+
                 # France24 should be 720 x 576
                 if channel == "France24" and width == 720 and height == 576:
                     for x in range(60, 665):
                         for y in range(490, 526):
-                            arabic_image.putpixel((x, y), 0)
+                            arabic_image.putpixel((x, y), color)
                 #Aljazeera should be 1920 x 1080
                 if channel == "AljazeeraHD" and width == 1920 and height == 1080:
                     for x in range(0, 1700):
                         for y in range(980, 1040):
-                            arabic_image.putpixel((x, y), 0)
+                            arabic_image.putpixel((x, y), color)
 
                 arabic_image.save(join(path_to_images, image_filename))
 
@@ -229,7 +234,7 @@ def check_pixels_used(pixels_used, use_columns, use_rows):
 def main(remove_ticker, generate_data, data_generation_limit, activ_D_folder, activ_R_folder, ALIF_folder,
          filler_images_file):
 
-    # PART 1 - Put black box over ticket in aljazeera and france24 pictures per readme instructions
+    # PART 1 - Block out box over ticker in aljazeera and france24 pictures per readme instructions
     if remove_ticker:
         redact_ticker(activ_D_folder)
 
