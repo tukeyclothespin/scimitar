@@ -30,18 +30,27 @@ def redact_ticker(activ_D_folder):
                 width, height = arabic_image.size
 
                 # Block out entire ticker with a random color
-                color = choice(range(0,255))
+                r_color = choice(range(0,255))
+                g_color = choice(range(0,255))
+                b_color = choice(range(0,255))
 
                 # France24 should be 720 x 576
                 if channel == "France24" and width == 720 and height == 576:
                     for x in range(60, 665):
                         for y in range(490, 526):
-                            arabic_image.putpixel((x, y), color)
+                            arabic_image.putpixel((x, y), (r_color,g_color,b_color))
                 #Aljazeera should be 1920 x 1080
-                if channel == "AljazeeraHD" and width == 1920 and height == 1080:
+                elif channel == "AljazeeraHD" and width == 1920 and height == 1080:
                     for x in range(0, 1700):
                         for y in range(980, 1040):
-                            arabic_image.putpixel((x, y), color)
+                            arabic_image.putpixel((x, y), (r_color,g_color,b_color))
+                #Aljazeera should be 1920 x 1080 but a few are off
+                elif channel == "AljazeeraHD" and width == 1920 and height == 1088:
+                    for x in range(0, 1700):
+                        for y in range(980+8, 1040+8):
+                            arabic_image.putpixel((x, y), (r_color,g_color,b_color))
+                else:
+                    print("Warning: {0} has unexpected shape {1}".format(image_filename,arabic_image.size))
 
                 arabic_image.save(join(path_to_images, image_filename))
 

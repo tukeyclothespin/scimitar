@@ -105,6 +105,23 @@ python3 object_detection/export_inference_graph.py \
     --output_directory /prog/models/exported/
 ```
 
+Note: As of February 9 2018, there is a known [issue](https://github.com/tensorflow/tensorflow/issues/16268) when running export_inference_graph.py:
+
+```
+Error: ValueError: Protocol message RewriterConfig has no "layout_optimizer" field.
+```
+
+A solution is to edit /models/research/object_detection/exporter.py line 71/72 from:
+
+```
+rewrite_options = rewriter_config_pb2.RewriterConfig(
+          layout_optimizer=rewriter_config_pb2.RewriterConfig.ON)
+```
+to
+```
+rewrite_options = rewriter_config_pb2.RewriterConfig()
+```
+
 #8. Test Images in Jupyter Notebook
 
 In Jupyter, open /prog/object_detection_tutorial.ipynb and step through the cells
