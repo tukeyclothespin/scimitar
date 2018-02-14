@@ -202,7 +202,7 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
                 background = resized_filler[chip_row_start:chip_row_start + chip_rows,
                                             chip_column_start:chip_column_start + chip_cols]
                 # Give equal weighting to reduce hard edges
-                blended = cv2.addWeighted(background, 0.5, chip, 0.5, 0)
+                blended = cv2.addWeighted(background, 0.4, chip, 0.6, 0)
                 resized_filler[chip_row_start:chip_row_start + chip_rows,
                                chip_column_start:chip_column_start + chip_cols] = blended
                 #resized_filler[chip_row_start:chip_row_start + chip_rows,
