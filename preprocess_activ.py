@@ -129,10 +129,15 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
     print("Number of Arabic chips:", num_arabic_chips)
 
     # create triplets of arabic_chips to place in filler images
-    step = int(num_arabic_chips/3)
+    #step = int(num_arabic_chips/3)
+    # create pairs of arabic_chips to place in filler images
+    step = int(num_arabic_chips / 2)
     arabic_chip_triplets = []
     for i in range(step):
-        arabic_chip_triplets.append([arabic_chips[i],arabic_chips[i+step],arabic_chips[i+2*step]])
+        #pairs
+        arabic_chip_triplets.append([arabic_chips[i], arabic_chips[i + step]])
+        # triplets
+        #arabic_chip_triplets.append([arabic_chips[i],arabic_chips[i+step],arabic_chips[i+2*step]])
 
     # Create a folder to store generated images
     generated_folder = join(activ_D_folder,"Generated")
@@ -196,15 +201,16 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
                 # Blend chip into filler background image
                 background = resized_filler[chip_row_start:chip_row_start + chip_rows,
                                             chip_column_start:chip_column_start + chip_cols]
+                # Give equal weighting to reduce hard edges
                 blended = cv2.addWeighted(background, 0.5, chip, 0.5, 0)
                 resized_filler[chip_row_start:chip_row_start + chip_rows,
                                chip_column_start:chip_column_start + chip_cols] = blended
                 #resized_filler[chip_row_start:chip_row_start + chip_rows,
                 #               chip_column_start:chip_column_start + chip_cols] = chip
 
-                # Record location as xml format
+                # Record location as xml format but make bounding box slightly smaller than chip to avoid hard edges
                 xml_file_output += '''<rectangle id="1" height="{0}" width="{1}" y="{2}" x="{3}"/>\n'''.format(
-                    chip_rows, chip_cols, chip_row_start, chip_column_start)
+                    chip_rows-2, chip_cols-2, chip_row_start+2, chip_column_start+2)
 
         xml_file_output += '''</frame>\n'''
 
