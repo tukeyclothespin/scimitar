@@ -210,7 +210,7 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
 
                 # Record location as xml format but make bounding box slightly smaller than chip to avoid hard edges
                 xml_file_output += '''<rectangle id="1" height="{0}" width="{1}" y="{2}" x="{3}"/>\n'''.format(
-                    chip_rows-2, chip_cols-2, chip_row_start+2, chip_column_start+2)
+                    chip_rows-1, chip_cols-1, chip_row_start+1, chip_column_start+1)
 
         xml_file_output += '''</frame>\n'''
 
