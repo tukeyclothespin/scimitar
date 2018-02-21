@@ -94,7 +94,7 @@ def main(_):
             path_to_xml = join("/arabic_text/AcTiV-D", channel, file)
             # Skip to next entry if file doesn't exist
             if not isfile(path_to_xml):
-                print("{0} was not located; skipping".format(path_to_xml))
+                print("\t{0} was not located; skipping".format(path_to_xml))
                 continue
             tree = etree.parse(path_to_xml)
             xml_contents = tree.getroot()

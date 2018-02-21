@@ -276,7 +276,7 @@ def add_negative_sampling_data(activ_D_folder, COCO_folder, total_negative_sampl
             resized_image = negative_image
 
         # Save in Negative folder under AcTiV-D
-        cv2.imwrite(join(negative_folder, "trainingFiles", "Generated_vd00_frame_" + str(counter) + ".png"),
+        cv2.imwrite(join(negative_folder, "trainingFiles", "Negative_vd00_frame_" + str(counter) + ".png"),
                     resized_image)
 
         counter += 1
