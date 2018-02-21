@@ -71,9 +71,9 @@ def main(_):
     # Use some of the test files as training examples and reserve one test batch for evaluation
     modes = ["training", "test"]
     channels = ["AljazeeraHD", "France24", "RussiyaAl-Yaum", "TunisiaNat1", "France24", "RussiyaAl-Yaum",
-                "TunisiaNat1", "Generated"]
+                "TunisiaNat1", "Generated", "Negative"]
     training_files = ["gtraining_Aj.xml", "gtraining_Fr.xml", "gtraining_Rt.xml", "gtraining_Tn.xml",
-                      "gtest_Fr.xml", "gtest_Rt.xml", "gtest_Tn.xml", "gtraining_Ge.xml"]
+                      "gtest_Fr.xml", "gtest_Rt.xml", "gtest_Tn.xml", "gtraining_Ge.xml", "gtraining_Ne.xml"]
     testing_files = ["gtest_Aj.xml"]
 
     for mode in modes:
