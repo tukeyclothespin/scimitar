@@ -242,7 +242,7 @@ def check_pixels_used(pixels_used, use_columns, use_rows):
     return True
 
 
-def add_negative_sampling_data(activ_D_folder, total_negative_samples=1000):
+def add_negative_sampling_data(activ_D_folder, COCO_folder, total_negative_samples=1000):
 
     # Create a folder to store negative sampling images
     negative_folder = join(activ_D_folder,"Negative")
@@ -267,7 +267,7 @@ def add_negative_sampling_data(activ_D_folder, total_negative_samples=1000):
         xml_file_output += '''<frame source="vd00" id="{0}"></frame>\n'''.format(str(counter))
 
         # Make path to COCO train2014 folder to load image
-        negative_image = cv2.imread(join(activ_D_folder,"COCO","train2014",negative_image_dict['file_name']))
+        negative_image = cv2.imread(join(COCO_folder,negative_image_dict['file_name']))
 
         if ONE_IMAGE_SIZE:
             # Resize to INPUT_HEIGHT, INPUT_WIDTH to align with AcTiV-D dataset
@@ -295,7 +295,7 @@ def add_negative_sampling_data(activ_D_folder, total_negative_samples=1000):
 
 
 def main(remove_ticker, generate_data, data_generation_limit, activ_D_folder, activ_R_folder, ALIF_folder,
-         filler_images_file, add_negative_sampling):
+         filler_images_file, add_negative_sampling, COCO_folder):
 
     # PART 1 - Block out box over ticker in aljazeera and france24 pictures per readme instructions
     if remove_ticker:
@@ -307,7 +307,7 @@ def main(remove_ticker, generate_data, data_generation_limit, activ_D_folder, ac
 
     # PART 3 - Add negative sampling images with non-Arabic text
     if add_negative_sampling:
-        add_negative_sampling_data(activ_D_folder)
+        add_negative_sampling_data(activ_D_folder, COCO_folder)
 
 
 if __name__ == '__main__':
@@ -355,6 +355,12 @@ if __name__ == '__main__':
         help='Location of ALIF dataset. Default = /arabic_data/ALIF')
 
     parser.add_argument(
+        '--COCO_folder',
+        type=str,
+        default="/arabic_text/COCO/train2014",
+        help='Location of COCO training dataset from 2014. Default = /arabic_text/COCO/train2014')
+
+    parser.add_argument(
         '--filler_images_file',
         type=str,
         default="/arabic_text/OpenImages/2017_11/train/images.csv",
@@ -376,7 +382,8 @@ if __name__ == '__main__':
            AcTiV-R folder = {4} \n \
            ALIF folder = {5} \n \
            Filler images file = {6} \n \
-           Add Negative Samples = {7} "
+           Add Negative Samples = {7} \n \
+           COCO dataset = {8} \n"
         .format(
             args.remove_ticker,
             args.generate_data,
@@ -385,7 +392,8 @@ if __name__ == '__main__':
             args.activ_R_folder,
             args.ALIF_folder,
             args.filler_images_file,
-            args.add_negative_sampling))
+            args.add_negative_sampling,
+            args.COCO_folder))
     main(args.remove_ticker, args.generate_data, args.data_generation_limit, args.activ_D_folder, args.activ_R_folder,
-         args.ALIF_folder, args.filler_images_file, args.add_negative_sampling)
+         args.ALIF_folder, args.filler_images_file, args.add_negative_sampling, args.COCO_folder)
     print("Done")
