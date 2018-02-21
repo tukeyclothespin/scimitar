@@ -255,7 +255,7 @@ def add_negative_sampling_data(activ_D_folder, COCO_folder, total_negative_sampl
     ct = coco_text.COCO_Text('COCO_Text.json')
     negative_images = ct.loadImgs(ct.getImgIds(imgIds=ct.train,
                              catIds=[('legibility', 'legible'),
-                                     #('class', 'machine printed'),
+                                     ('class', 'machine printed'),
                                      ('language', 'english')])[0:total_negative_samples])
 
     # Start XML file text
@@ -295,7 +295,7 @@ def add_negative_sampling_data(activ_D_folder, COCO_folder, total_negative_sampl
 
 
 def main(remove_ticker, generate_data, data_generation_limit, activ_D_folder, activ_R_folder, ALIF_folder,
-         filler_images_file, add_negative_sampling, COCO_folder):
+         filler_images_file, add_negative_sampling, negative_sample_limit, COCO_folder):
 
     # PART 1 - Block out box over ticker in aljazeera and france24 pictures per readme instructions
     if remove_ticker:
@@ -307,7 +307,7 @@ def main(remove_ticker, generate_data, data_generation_limit, activ_D_folder, ac
 
     # PART 3 - Add negative sampling images with non-Arabic text
     if add_negative_sampling:
-        add_negative_sampling_data(activ_D_folder, COCO_folder)
+        add_negative_sampling_data(activ_D_folder, COCO_folder, negative_sample_limit)
 
 
 if __name__ == '__main__':
@@ -372,6 +372,12 @@ if __name__ == '__main__':
         action='store_true',
         help='Add negative sampling data for text using COCO-Text images. Default = False')
 
+    parser.add_argument(
+        '--negative_sample_limit',
+        type=int,
+        default=2000,
+        help='Limit of number of negative samples to add to training from COCO-text. Default = 2000')
+
     args = parser.parse_args()
     print(
         "Parameters set as: \n \
@@ -383,7 +389,8 @@ if __name__ == '__main__':
            ALIF folder = {5} \n \
            Filler images file = {6} \n \
            Add Negative Samples = {7} \n \
-           COCO dataset = {8} \n"
+           Negative Sample Limit = {8} \n \
+           COCO dataset = {9} \n"
         .format(
             args.remove_ticker,
             args.generate_data,
@@ -393,7 +400,8 @@ if __name__ == '__main__':
             args.ALIF_folder,
             args.filler_images_file,
             args.add_negative_sampling,
+            args.negative_sample_limit,
             args.COCO_folder))
     main(args.remove_ticker, args.generate_data, args.data_generation_limit, args.activ_D_folder, args.activ_R_folder,
-         args.ALIF_folder, args.filler_images_file, args.add_negative_sampling, args.COCO_folder)
+         args.ALIF_folder, args.filler_images_file, args.add_negative_sampling, args.negative_sample_limit, args.COCO_folder)
     print("Done")
