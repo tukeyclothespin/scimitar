@@ -264,23 +264,37 @@ def add_negative_sampling_data(activ_D_folder, COCO_folder, total_negative_sampl
     counter = 0
 
     for negative_image_dict in negative_images:
-        xml_file_output += '''<frame source="vd00" id="{0}"></frame>\n'''.format(str(counter))
+        xml_file_output += '''<frame source="vd00" id="{0}">'''.format(str(counter))
 
         # Make path to COCO train2014 folder to load image
         negative_image = cv2.imread(join(COCO_folder,negative_image_dict['file_name']))
 
-        if ONE_IMAGE_SIZE:
+        # Get annotations
+        annIds = ct.getAnnIds(imgIds=negative_image_dict['id'])
+        anns = ct.loadAnns(annIds)
+        rectangle_num = 0
+
+        for ann in anns:
+            rectangle_num += 1
+            # Per COCO-Text “bbox” : [x,y,width,height],
+            x, y, width, height = ann['bbox']
+            xml_file_output += '''<rectangle id="{4}" height="{0}" width="{1}" y="{2}" x="{3}"/>\n'''.format(
+                int(height), int(width), int(y), int(x), rectangle_num)
+
+        xml_file_output += '''</frame>\n'''
+
+        #if ONE_IMAGE_SIZE:
             # Resize to INPUT_HEIGHT, INPUT_WIDTH to align with AcTiV-D dataset
-            resized_image = cv2.resize(negative_image, (INPUT_WIDTH, INPUT_HEIGHT), interpolation=cv2.INTER_LINEAR)
-        else:
-            resized_image = negative_image
+        #    resized_image = cv2.resize(negative_image, (INPUT_WIDTH, INPUT_HEIGHT), interpolation=cv2.INTER_LINEAR)
+        #else:
+        resized_image = negative_image
 
         # Save in Negative folder under AcTiV-D
         cv2.imwrite(join(negative_folder, "trainingFiles", "Negative_vd00_frame_" + str(counter) + ".png"),
                     resized_image)
 
         counter += 1
-        if counter % 200 == 0:
+        if counter % 200 == 0 and counter != total_negative_samples:
             print("Added {0} negative training examples".format(counter))
 
     # End XML file text

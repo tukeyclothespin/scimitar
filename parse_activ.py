@@ -41,9 +41,12 @@ def create_tf_example(example, mode):
     # Only detecting arabic, which is class 1
 
     # List of string class name of bounding box (1 per box)
-    classes_text = ['arabic'.encode('utf8') for i in range(len(xmins))]
+    classes_text = [example['label'] for i in range(len(xmins))]
+    #classes_text = ['arabic'.encode('utf8') for i in range(len(xmins))]
+
     # List of integer class id of bounding box (1 per box)
-    classes = [1 for i in range(len(xmins))]
+    classes = [example['label_num'] for i in range(len(xmins))]
+    #classes = [1 for i in range(len(xmins))]
 
     #else:
     #    return None
@@ -127,6 +130,14 @@ def main(_):
                 # AcTiV images are all png
                 frame_attributes['image_format'] = b'png'
                 frame_attributes['path_to_image'] = path_to_image
+
+                # Add class label
+                if channel == 'Negative':
+                    frame_attributes['label'] = 'english'.encode('utf8')
+                    frame_attributes['label_num'] = 2
+                else:
+                    frame_attributes['label'] = 'arabic'.encode('utf8')
+                    frame_attributes['label_num'] = 1
 
                 counter += 1
                 #if counter == 1: print(frame_attributes)

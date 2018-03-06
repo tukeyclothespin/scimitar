@@ -61,10 +61,18 @@ cd /prog
 python3 preprocess_activ.py --remove_ticker
 ```
 
-If you want to generate synthetic examples, run
+If you want to generate synthetic training examples, run
 ```
 python3 preprocess_activ.py --generate_data
 ``` 
+
+If you want to add another class label of English text from COCO-Text as a form of negative sampling, run
+
+NOTE: ONE_IMAGE_SIZE variable in global_config must be False to use negative sampling
+```
+unzip COCO_Text.zip
+python3 preprocess_activ.py --add_negative_sampling
+```
 
 #3. Parse AcTiV Data
 ```
