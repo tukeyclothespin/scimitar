@@ -160,7 +160,8 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
             # Control for extra large images because inserted arabic chip becomes unreadable
             filler_rows, filler_cols, _ = filler.shape
             if filler_rows >= 1500 or filler_cols >= 1500:
-                resized_filler = cv2.resize(filler, (1500, 1500), interpolation=cv2.INTER_LINEAR)
+                new_dims = choice(range(1000,1400))
+                resized_filler = cv2.resize(filler, (new_dims, new_dims), interpolation=cv2.INTER_LINEAR)
             else:
                 resized_filler = filler
 
