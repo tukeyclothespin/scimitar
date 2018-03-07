@@ -160,7 +160,7 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
             # Control for extra large images because inserted arabic chip becomes unreadable
             filler_rows, filler_cols, _ = filler.shape
             if filler_rows >= 1500 or filler_cols >= 1500:
-                new_dims = choice(range(1000,1300))
+                new_dims = choice(range(600,1200))
                 resized_filler = cv2.resize(filler, (new_dims, new_dims), interpolation=cv2.INTER_LINEAR)
             else:
                 resized_filler = filler
@@ -206,7 +206,7 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
                 background = resized_filler[chip_row_start:chip_row_start + chip_rows,
                                             chip_column_start:chip_column_start + chip_cols]
                 # Give equal weighting to reduce hard edges
-                blended = cv2.addWeighted(background, 0.4, chip, 0.6, 0)
+                blended = cv2.addWeighted(background, 0.3, chip, 0.7, 0)
                 resized_filler[chip_row_start:chip_row_start + chip_rows,
                                chip_column_start:chip_column_start + chip_cols] = blended
 
