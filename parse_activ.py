@@ -69,7 +69,7 @@ def create_tf_example(example, mode):
     return tf_example
 
 
-def main(_):
+def main(activ_D_folder, program_data_folder):
 
     # Use some of the test files as training examples and reserve one test batch for evaluation
     modes = ["training", "test"]
@@ -82,7 +82,8 @@ def main(_):
     for mode in modes:
 
         # writer = tf.python_io.TFRecordWriter(FLAGS.output_path)
-        writer = tf.python_io.TFRecordWriter(join("/prog/data", mode + ".tfrecord"))
+        # writer = tf.python_io.TFRecordWriter(join("/prog/data", mode + ".tfrecord"))
+        writer = tf.python_io.TFRecordWriter(join(program_data_folder, mode + ".tfrecord"))
         print("Processing {0} files".format(mode))
         if mode == "training":
             files = training_files
@@ -93,8 +94,11 @@ def main(_):
 
         for channel, file in zip(channels, files):
             # print("Channel:",channel)
-            path_to_image = join("/arabic_text/AcTiV-D", channel, mode + "Files")
-            path_to_xml = join("/arabic_text/AcTiV-D", channel, file)
+            #path_to_image = join("/arabic_text/AcTiV-D", channel, mode + "Files")
+            #path_to_xml = join("/arabic_text/AcTiV-D", channel, file)
+            path_to_image = join(activ_D_folder, channel, mode + "Files")
+            path_to_xml = join(activ_D_folder, channel, file)
+
             # Skip to next entry if file doesn't exist
             if not isfile(path_to_xml):
                 print("\t{0} was not located; skipping".format(path_to_xml))
@@ -157,10 +161,40 @@ def main(_):
                 continue
 
         print("Wrote {0} tfrecord entries from {1} examples to {2}".format(counter, len_examples,
-                                                                           join("/prog/data", mode + ".tfrecord")))
+                                                                           join(program_data_folder, mode + ".tfrecord")))
         writer.close()
 
 
 if __name__ == '__main__':
-    # main()
-    tf.app.run()
+
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description='Preprocess AcTiV dataset by removing ticker (--remove_ticker) and generating additional training \
+                    images (--generate_data')
+
+    # Optional arguments
+    parser.add_argument(
+        '--activ_D_folder',
+        type=str,
+        default="/arabic_text/AcTiV-D",
+        help='Location of AcTiV dataset. Default = /arabic_data/AcTiV-D')
+
+    parser.add_argument(
+        '--program_data_folder',
+        type=str,
+        default="/prog/data",
+        help='Location of AcTiV dataset. Default = /prog/data')
+
+    args = parser.parse_args()
+    print(
+        "Parameters set as: \n \
+           AcTiV-D folder = {0} \n \
+           Program Data folder = {1} \n"
+        .format(
+            args.activ_D_folder,
+            args.program_data_folder))
+    main(args.activ_D_folder, args.program_data_folder)
+    #tf.app.run()
+    print("Done")
+
