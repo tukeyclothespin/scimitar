@@ -184,7 +184,7 @@ if __name__ == '__main__':
         '--program_data_folder',
         type=str,
         default="/prog/data",
-        help='Location of AcTiV dataset. Default = /prog/data')
+        help='Location of scimitar repository data folder. Default = /prog/data')
 
     args = parser.parse_args()
     print(

@@ -378,19 +378,19 @@ if __name__ == '__main__':
         '--COCO_folder',
         type=str,
         default="/arabic_text/COCO/train2014",
-        help='Location of COCO training dataset from 2014. Default = /arabic_text/COCO/train2014')
+        help='Location of COCO training dataset from 2014 to use for negative sampling. Default = /arabic_text/COCO/train2014')
 
     parser.add_argument(
         '--filler_images_file',
         type=str,
         default="/arabic_text/OpenImages/2017_11/train/images.csv",
-        help='Location of file containing filler image details in Open Images csv format. Default = /filler_image_data')
+        help='Location of file containing filler image details in Open Images csv format. Default = /arabic_text/OpenImages/2017_11/train/images.csv')
 
     parser.add_argument(
         '--add_negative_sampling',
         default=False,
         action='store_true',
-        help='Add negative sampling data for text using COCO-Text images. Default = False')
+        help='Add negative sampling data via an additional English class label using COCO-Text images. Default = False')
 
     parser.add_argument(
         '--negative_sample_limit',
