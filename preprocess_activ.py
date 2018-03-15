@@ -248,7 +248,7 @@ def check_pixels_used(pixels_used, use_columns, use_rows):
     return True
 
 
-def add_negative_sampling_data(activ_D_folder, COCO_folder, total_negative_samples=1000):
+def add_negative_sampling_data(activ_D_folder, COCO_folder, total_negative_samples=1000, testing_samples=50):
 
     # Create a folder to store negative sampling images
     negative_folder = join(activ_D_folder,"Negative")
@@ -256,62 +256,66 @@ def add_negative_sampling_data(activ_D_folder, COCO_folder, total_negative_sampl
         os.mkdir(negative_folder)
         if not isdir(join(negative_folder,"trainingFiles")):
             os.mkdir(join(negative_folder,"trainingFiles"))
+        if not isdir(join(negative_folder,"testingFiles")):
+            os.mkdir(join(negative_folder,"testingFiles"))
 
     # Get list of images with text from COCO-Text dataset
     ct = coco_text.COCO_Text('COCO_Text.json')
     negative_images = ct.loadImgs(ct.getImgIds(imgIds=ct.train,
                              catIds=[('legibility', 'legible'),
                                      ('class', 'machine printed'),
-                                     ('language', 'english')])[0:total_negative_samples])
+                                     ('language', 'english')])[:total_negative_samples+testing_samples])
 
-    # Start XML file text
-    xml_file_output = '''<?xml version="1.0" encoding="UTF-8"?>\n\n<Protocol4 channel="Negative">\n\n'''
+    modes = ["training", "test"]
 
-    counter = 0
+    for mode in modes:
+        if mode == 'training':
+            negative_images_subset = negative_images[:total_negative_samples]
+        elif mode == 'testing':
+            negative_images_subset = negative_images[total_negative_samples:total_negative_samples+testing_samples]
 
-    for negative_image_dict in negative_images:
-        xml_file_output += '''<frame source="vd00" id="{0}">'''.format(str(counter))
+        # Start XML file text
+        xml_file_output = '''<?xml version="1.0" encoding="UTF-8"?>\n\n<Protocol4 channel="Negative">\n\n'''
 
-        # Make path to COCO train2014 folder to load image
-        negative_image = cv2.imread(join(COCO_folder,negative_image_dict['file_name']))
+        counter = 0
 
-        # Get annotations
-        annIds = ct.getAnnIds(imgIds=negative_image_dict['id'])
-        anns = ct.loadAnns(annIds)
-        rectangle_num = 0
+        for negative_image_dict in negative_images_subset:
+            xml_file_output += '''<frame source="vd00" id="{0}">'''.format(str(counter))
 
-        for ann in anns:
-            rectangle_num += 1
-            # Per COCO-Text “bbox” : [x,y,width,height],
-            x, y, width, height = ann['bbox']
-            xml_file_output += '''<rectangle id="{4}" height="{0}" width="{1}" y="{2}" x="{3}"/>\n'''.format(
-                int(height), int(width), int(y), int(x), rectangle_num)
+            # Make path to COCO train2014 folder to load image
+            negative_image = cv2.imread(join(COCO_folder,negative_image_dict['file_name']))
 
-        xml_file_output += '''</frame>\n'''
+            # Get annotations
+            annIds = ct.getAnnIds(imgIds=negative_image_dict['id'])
+            anns = ct.loadAnns(annIds)
+            rectangle_num = 0
 
-        #if ONE_IMAGE_SIZE:
-            # Resize to INPUT_HEIGHT, INPUT_WIDTH to align with AcTiV-D dataset
-        #    resized_image = cv2.resize(negative_image, (INPUT_WIDTH, INPUT_HEIGHT), interpolation=cv2.INTER_LINEAR)
-        #else:
-        resized_image = negative_image
+            for ann in anns:
+                rectangle_num += 1
+                # Per COCO-Text “bbox” : [x,y,width,height],
+                x, y, width, height = ann['bbox']
+                xml_file_output += '''<rectangle id="{4}" height="{0}" width="{1}" y="{2}" x="{3}"/>\n'''.format(
+                    int(height), int(width), int(y), int(x), rectangle_num)
 
-        # Save in Negative folder under AcTiV-D
-        cv2.imwrite(join(negative_folder, "trainingFiles", "Negative_vd00_frame_" + str(counter) + ".png"),
-                    resized_image)
+            xml_file_output += '''</frame>\n'''
 
-        counter += 1
-        if counter % 200 == 0 and counter != total_negative_samples:
-            print("Added {0} negative training examples".format(counter))
+            # Save in Negative folder under AcTiV-D
+            cv2.imwrite(join(negative_folder, mode+"Files", "Negative_vd00_frame_" + str(counter) + ".png"),
+                        negative_image)
 
-    # End XML file text
-    xml_file_output += "\n</Protocol4>"
+            counter += 1
+            if counter % 200 == 0 and counter != total_negative_samples:
+                print("Added {0} negative training examples".format(counter))
 
-    #print(xml_file_output)
-    with open(join(negative_folder,"gtraining_Ne.xml"),'w') as f:
-        f.write(xml_file_output)
+        # End XML file text
+        xml_file_output += "\n</Protocol4>"
 
-    # Print out final count
-    print("Added {0} negative training examples".format(total_negative_samples))
+        #print(xml_file_output)
+        with open(join(negative_folder,"g"+mode+"_Ne.xml"),'w') as f:
+            f.write(xml_file_output)
+
+        # Print out final count
+        print("Added {0} negative {1} examples".format(total_negative_samples,mode))
 
 
 def main(remove_ticker, generate_data, data_generation_limit, activ_D_folder, activ_R_folder, ALIF_folder,

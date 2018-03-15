@@ -145,6 +145,14 @@ to
 rewrite_options = rewriter_config_pb2.RewriterConfig()
 ```
 
+Note: As of March 6 2018 an error occurs indicating that pycocotools cannot be imported in object_detection/metrics/coco_tools.py. A solution is to install the Coco API:
+
+```buildoutcfg
+git clone https://github.com/cocodataset/cocoapi.git
+cd cocoapi/PythonAPI
+python setup.py install
+```
+
 #8. Test Images in Jupyter Notebook
 
 In Jupyter, open /prog/object_detection_tutorial.ipynb and step through the cells
