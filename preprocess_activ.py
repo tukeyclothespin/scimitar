@@ -271,8 +271,11 @@ def add_negative_sampling_data(activ_D_folder, COCO_folder, total_negative_sampl
     for mode in modes:
         if mode == 'training':
             negative_images_subset = negative_images[:total_negative_samples]
-        elif mode == 'testing':
+        elif mode == 'test':
             negative_images_subset = negative_images[total_negative_samples:total_negative_samples+testing_samples]
+        else:
+            print("unknown mode; quitting")
+            quit()
 
         # Start XML file text
         xml_file_output = '''<?xml version="1.0" encoding="UTF-8"?>\n\n<Protocol4 channel="Negative">\n\n'''
@@ -305,7 +308,7 @@ def add_negative_sampling_data(activ_D_folder, COCO_folder, total_negative_sampl
 
             counter += 1
             if counter % 200 == 0 and counter != total_negative_samples:
-                print("Added {0} negative training examples".format(counter))
+                print("Added {0} negative {1} examples".format(counter,mode))
 
         # End XML file text
         xml_file_output += "\n</Protocol4>"
