@@ -86,20 +86,8 @@ cd /models/research
 python3 object_detection/train.py --logtostderr --pipeline_config_path=/prog/models/model/faster_rcnn_resnet50_coco.config --train_dir=/prog/models/model/train
 ```
 
-Note: As of March 5 2018 changes to the object_detection API causes two errors.
+Note: As of March 30 2018 changes to the object_detection API causes a learning schedule error in Python3. If you encounter it, follow the instructions in the [Git Issue](https://github.com/tensorflow/models/issues/3705).
 
-The first error reports an unexpected keyword argument dct_method. One solution is to remove the line 110 reference to dct_method in object_detection/data_decoders/tf_example_decoder.py to get:
-```buildoutcfg
-slim_example_decoder.Image(
-                image_key='image/encoded',
-                format_key='image/format',
-                channels=3),
-```
- 
-The second error reports expecting an int and receiving a range object. A solution is to update line 153 of object_detection/utils/learning_schedules.py to:
-```buildoutcfg
-tf.constant(list(range(num_boundaries)), dtype=tf.int32),
-```
 
 #5. (Optional) Start Tensorboard
 ```

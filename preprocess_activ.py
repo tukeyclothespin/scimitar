@@ -139,8 +139,8 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
     generated_folder = join(activ_D_folder,"Generated")
     if not isdir(generated_folder):
         os.mkdir(generated_folder)
-        if not isdir(join(generated_folder,"trainingFiles")):
-            os.mkdir(join(generated_folder,"trainingFiles"))
+    if not isdir(join(generated_folder,"trainingFiles")):
+        os.mkdir(join(generated_folder,"trainingFiles"))
 
     seed(41)
     counter = 0
@@ -254,10 +254,10 @@ def add_negative_sampling_data(activ_D_folder, COCO_folder, total_negative_sampl
     negative_folder = join(activ_D_folder,"Negative")
     if not isdir(negative_folder):
         os.mkdir(negative_folder)
-        if not isdir(join(negative_folder,"trainingFiles")):
-            os.mkdir(join(negative_folder,"trainingFiles"))
-        if not isdir(join(negative_folder,"testingFiles")):
-            os.mkdir(join(negative_folder,"testingFiles"))
+    if not isdir(join(negative_folder,"trainingFiles")):
+        os.mkdir(join(negative_folder,"trainingFiles"))
+    if not isdir(join(negative_folder,"testFiles")):
+        os.mkdir(join(negative_folder,"testFiles"))
 
     # Get list of images with text from COCO-Text dataset
     ct = coco_text.COCO_Text('COCO_Text.json')
@@ -307,7 +307,7 @@ def add_negative_sampling_data(activ_D_folder, COCO_folder, total_negative_sampl
                         negative_image)
 
             counter += 1
-            if counter % 200 == 0 and counter != total_negative_samples:
+            if counter % 200 == 0 and counter != total_negative_samples and counter != testing_samples:
                 print("Added {0} negative {1} examples".format(counter,mode))
 
         # End XML file text
@@ -318,7 +318,10 @@ def add_negative_sampling_data(activ_D_folder, COCO_folder, total_negative_sampl
             f.write(xml_file_output)
 
         # Print out final count
-        print("Added {0} negative {1} examples".format(total_negative_samples,mode))
+        if mode == 'training':
+            print("Added {0} negative {1} examples".format(total_negative_samples, mode))
+        elif mode == 'test':
+            print("Added {0} negative {1} examples".format(testing_samples, mode))
 
 
 def main(remove_ticker, generate_data, data_generation_limit, activ_D_folder, activ_R_folder, ALIF_folder,
