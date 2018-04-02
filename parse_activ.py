@@ -29,9 +29,20 @@ def create_tf_example(example, mode):
     if mode != "test" and ONE_IMAGE_SIZE and (height != INPUT_HEIGHT or width != INPUT_WIDTH):
         #print("Input image does not match expected size {0}x{1}; skipping".format(INPUT_WIDTH,INPUT_HEIGHT))
         return None
+    
+    # If needed, resize now that the normalized box coordinates have been calculated
+    if width > 1000 or height > 1000:
+        basewidth = 1000
+        wpercent = (basewidth/float(width))
+        hsize = int((float(height)*float(wpercent)))
+        activ_image = activ_image.resize((basewidth,hsize), Image.ANTIALIAS)
+        width, height = activ_image.size
 
     imgByteArr = io.BytesIO()
-    activ_image.save(imgByteArr, format='PNG')
+    if example['extension'] == 'jpg':
+        activ_image.save(imgByteArr, format='JPEG')
+    else:
+        activ_image.save(imgByteArr, format='PNG')
     encoded_image_data = imgByteArr.getvalue()  # Encoded image bytes
 
     filename = example['file_name'].encode('utf-8')  # Filename of the image. Empty if image is not from file
@@ -65,8 +76,9 @@ def create_tf_example(example, mode):
 
 def main(activ_D_folder, program_data_folder):
 
-    # Use some of the test files as training examples and reserve one test batch for evaluation
+    # Use some of the test files as training examples and reserve two test batches for evaluation
     modes = ["training", "test"]
+
     channels = ["AljazeeraHD", "Negative", "France24", "RussiyaAl-Yaum", "TunisiaNat1", "France24", "RussiyaAl-Yaum",
                 "TunisiaNat1", "Generated"]
     training_files = ["gtraining_Aj.xml", "gtraining_Ne.xml", "gtraining_Fr.xml", "gtraining_Rt.xml", "gtraining_Tn.xml",
@@ -103,6 +115,12 @@ def main(activ_D_folder, program_data_folder):
                 frame_attributes = dict()
                 frame_attributes['source'] = frame.attrib['source']
                 frame_attributes['frame_num'] = frame.attrib['id']
+                
+                # Negative sampling and Generated text have file extension in xml
+                if 'ext' in frame.attrib:
+                    frame_attributes['extension'] = frame.attrib['ext']
+                else:
+                    frame_attributes['extension'] = 'png'
 
                 frame_attributes['item_id'] = list()
                 frame_attributes['bbox_xmins'] = list()
@@ -118,12 +136,22 @@ def main(activ_D_folder, program_data_folder):
                     frame_attributes['bbox_ymins'].append(int(rectangle.attrib['y']))
                     frame_attributes['bbox_ymaxs'].append(
                         int(rectangle.attrib['y']) + int(rectangle.attrib['height']))
+                
+                #if frame_attributes['extension'] is not None and frame_attributes['extension']!='':
+                #    frame_attributes['file_name'] = channel + "_" + frame_attributes['source'] + "_frame_" + \
+                #                                    frame_attributes['frame_num'] + "." + frame_attributes['extension']
+                #else:
+                #    # File name format for ActiV is France24_vd01_frame_11.png
+                #    frame_attributes['file_name'] = channel + "_" + frame_attributes['source'] + "_frame_" + \
+                #                                    frame_attributes['frame_num'] + ".png"
 
-                # File name format for ActiV is France24_vd01_frame_11.png
                 frame_attributes['file_name'] = channel + "_" + frame_attributes['source'] + "_frame_" + \
-                                                frame_attributes['frame_num'] + ".png"
-                # AcTiV images are all png
-                frame_attributes['image_format'] = b'png'
+                                                    frame_attributes['frame_num'] + "." + frame_attributes['extension']
+                if frame_attributes['extension'] in ['jpg','jpeg']:
+                    frame_attributes['image_format'] = b'jpeg' 
+                elif frame_attributes['extension'] in ['png']:
+                    frame_attributes['image_format'] = b'png'    
+                    
                 frame_attributes['path_to_image'] = path_to_image
 
                 # Add class label

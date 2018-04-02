@@ -152,6 +152,7 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
     for filler_image, arabic_chips in zip(filler_images, arabic_chip_triplets):
 
         filler = cv2.imread(filler_image)
+        suffix = filler_image[filler_image.rfind(".")+1:]
 
         if ONE_IMAGE_SIZE:
             # Resize openimage candidates to INPUT_HEIGHT, INPUT_WIDTH to align with AcTiV-D dataset
@@ -159,15 +160,17 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
         else:
             # Control for extra large images because inserted arabic chip becomes unreadable
             filler_rows, filler_cols, _ = filler.shape
-            if filler_rows >= 1500 or filler_cols >= 1500:
-                new_dims = choice(range(600,1200))
+            # Input shape for resnet50 and resnet inception is 600x1024
+            if filler_rows > 1000 or filler_cols > 1000:
+                new_dims = choice(range(600,1001,2))
                 resized_filler = cv2.resize(filler, (new_dims, new_dims), interpolation=cv2.INTER_LINEAR)
             else:
                 resized_filler = filler
 
         resized_filler_rows, resized_filler_cols, _ = resized_filler.shape
 
-        xml_file_output += '''<frame source="vd00" id="{0}">'''.format(str(counter))
+        #xml_file_output += '''<frame source="vd00" id="{0}">'''.format(str(counter))
+        xml_file_output += '''<frame source="vd00" id="{0}" ext="{1}">\n'''.format(str(counter),suffix)
         pixels_used = defaultdict(bool)
         rectangle_num = 0
 
@@ -216,7 +219,7 @@ def generate_training_data(activ_D_folder, activ_R_folder, ALIF_folder, filler_i
 
         xml_file_output += '''</frame>\n'''
 
-        cv2.imwrite(join(generated_folder, "trainingFiles", "Generated_vd00_frame_" + str(counter) + ".png"),
+        cv2.imwrite(join(generated_folder, "trainingFiles", "Generated_vd00_frame_" + str(counter) + "." + suffix),
                     resized_filler)
 
         counter += 1
@@ -283,11 +286,17 @@ def add_negative_sampling_data(activ_D_folder, COCO_folder, total_negative_sampl
         counter = 0
 
         for negative_image_dict in negative_images_subset:
-            xml_file_output += '''<frame source="vd00" id="{0}">'''.format(str(counter))
+            #xml_file_output += '''<frame source="vd00" id="{0}">'''.format(str(counter))
 
+            if not os.path.isdir(COCO_folder):
+                print("COCO_folder not found at {0}".format(COCO_folder))
+                quit()
+            
             # Make path to COCO train2014 folder to load image
             negative_image = cv2.imread(join(COCO_folder,negative_image_dict['file_name']))
-
+            suffix = negative_image_dict['file_name'][negative_image_dict['file_name'].rfind(".")+1:]
+            xml_file_output += '''<frame source="vd00" id="{0}" ext="{1}">\n'''.format(str(counter),suffix)
+            
             # Get annotations
             annIds = ct.getAnnIds(imgIds=negative_image_dict['id'])
             anns = ct.loadAnns(annIds)
@@ -303,7 +312,7 @@ def add_negative_sampling_data(activ_D_folder, COCO_folder, total_negative_sampl
             xml_file_output += '''</frame>\n'''
 
             # Save in Negative folder under AcTiV-D
-            cv2.imwrite(join(negative_folder, mode+"Files", "Negative_vd00_frame_" + str(counter) + ".png"),
+            cv2.imwrite(join(negative_folder, mode+"Files", "Negative_vd00_frame_" + str(counter) + "." + suffix),
                         negative_image)
 
             counter += 1
