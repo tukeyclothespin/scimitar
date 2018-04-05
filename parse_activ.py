@@ -5,6 +5,7 @@ from os.path import join, isfile
 from PIL import Image
 import io
 from global_config import INPUT_HEIGHT, INPUT_WIDTH, ONE_IMAGE_SIZE, USE_GRAYSCALE
+from random import shuffle
 
 
 def create_tf_example(example, mode):
@@ -39,7 +40,7 @@ def create_tf_example(example, mode):
         width, height = activ_image.size
 
     imgByteArr = io.BytesIO()
-    if example['extension'] == 'jpg':
+    if example['extension'] in ['jpg','jpeg']:
         activ_image.save(imgByteArr, format='JPEG')
     else:
         activ_image.save(imgByteArr, format='PNG')
@@ -50,11 +51,9 @@ def create_tf_example(example, mode):
 
     # List of string class name of bounding box (1 per box)
     classes_text = [example['label'] for i in range(len(xmins))]
-    #classes_text = ['arabic'.encode('utf8') for i in range(len(xmins))]
 
     # List of integer class id of bounding box (1 per box)
     classes = [example['label_num'] for i in range(len(xmins))]
-    #classes = [1 for i in range(len(xmins))]
 
     tf_example = tf.train.Example(features=tf.train.Features(feature={
         'image/height': dataset_util.int64_feature(height),
@@ -98,7 +97,6 @@ def main(activ_D_folder, program_data_folder):
         examples = list()
 
         for channel, file in zip(channels, files):
-            # print("Channel:",channel)
             path_to_image = join(activ_D_folder, channel, mode + "Files")
             path_to_xml = join(activ_D_folder, channel, file)
 
@@ -137,14 +135,7 @@ def main(activ_D_folder, program_data_folder):
                     frame_attributes['bbox_ymaxs'].append(
                         int(rectangle.attrib['y']) + int(rectangle.attrib['height']))
                 
-                #if frame_attributes['extension'] is not None and frame_attributes['extension']!='':
-                #    frame_attributes['file_name'] = channel + "_" + frame_attributes['source'] + "_frame_" + \
-                #                                    frame_attributes['frame_num'] + "." + frame_attributes['extension']
-                #else:
-                #    # File name format for ActiV is France24_vd01_frame_11.png
-                #    frame_attributes['file_name'] = channel + "_" + frame_attributes['source'] + "_frame_" + \
-                #                                    frame_attributes['frame_num'] + ".png"
-
+                # File name format for ActiV is France24_vd01_frame_11.png
                 frame_attributes['file_name'] = channel + "_" + frame_attributes['source'] + "_frame_" + \
                                                     frame_attributes['frame_num'] + "." + frame_attributes['extension']
                 if frame_attributes['extension'] in ['jpg','jpeg']:
@@ -163,13 +154,13 @@ def main(activ_D_folder, program_data_folder):
                     frame_attributes['label_num'] = 1
 
                 counter += 1
-                #if counter == 1: print(frame_attributes)
                 examples.append(frame_attributes)
 
             print("\tProcessed {0} frames for channel {1}".format(counter, channel))
 
         counter = 0
         len_examples = len(examples)
+        shuffle(examples)
         for example in examples:
             tf_example = create_tf_example(example, mode)
             if tf_example is not None:

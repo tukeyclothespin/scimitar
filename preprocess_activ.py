@@ -12,6 +12,7 @@ from random import seed, choice
 from collections import defaultdict
 import coco_text
 
+
 def redact_ticker(activ_D_folder):
 
     # Ticker removal only pertains to AljazeeraHD and France24 per AcTiV readme
@@ -251,7 +252,7 @@ def check_pixels_used(pixels_used, use_columns, use_rows):
     return True
 
 
-def add_negative_sampling_data(activ_D_folder, COCO_folder, total_negative_samples=1000, testing_samples=50):
+def add_negative_sampling_data(activ_D_folder, COCO_folder, total_negative_samples=1000, testing_samples=100):
 
     # Create a folder to store negative sampling images
     negative_folder = join(activ_D_folder,"Negative")
